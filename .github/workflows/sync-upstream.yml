@@ -1,0 +1,55 @@
+name: Sync Upstream Signal
+
+on:
+  schedule:
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Nivra
+        uses: actions/checkout@v4
+        with:
+          ref: nivra-main
+          fetch-depth: 0
+
+      - name: Configure Git
+        run: |
+          git config user.name "Nivra Auto-Sync"
+          git config user.email "bot@nivra.local"
+
+      - name: Add Upstream Remote
+        run: |
+          git remote get-url upstream || git remote add upstream https://github.com/signalapp/Signal-Android.git
+
+      - name: Fetch Upstream
+        run: |
+          git fetch upstream main
+
+      - name: Check for Protected Path Changes
+        id: check_paths
+        run: |
+          git diff --name-only HEAD upstream/main > changed_files.txt
+          PROTECTED_PATHS="crypto/ dependencies/ jobs/ messages/ net/ push/ registration/ webrtc/ whispersystems/ libsignal/"
+          PROTECTED_TOUCHED=false
+          for path in $PROTECTED_PATHS; do
+            if grep -q "$path" changed_files.txt; then
+              echo "Protected path touched: $path"
+              PROTECTED_TOUCHED=true
+            fi
+          done
+          echo "protected_touched=$PROTECTED_TOUCHED" >> $GITHUB_OUTPUT
+
+      - name: Create Sync PR
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "chore: sync upstream Signal-Android"
+          title: "Sync Upstream Updates"
+          body: "Automated PR to sync with upstream. Protected paths touched: ${{ steps.check_paths.outputs.protected_touched }}"
+          branch: "sync/upstream-latest"
+          base: "nivra-main"
+          labels: "upstream-sync"
