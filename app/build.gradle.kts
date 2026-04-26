@@ -432,6 +432,15 @@ android {
       buildConfigField("boolean", "LINK_DEVICE_UX_ENABLED", "true")
     }
 
+    create("nivra") {
+      dimension = "distribution"
+      buildConfigField("boolean", "MANAGES_APP_UPDATES", "false")
+      buildConfigField("String", "APK_UPDATE_MANIFEST_URL", "null")
+      buildConfigField("String", "BUILD_DISTRIBUTION_TYPE", "\"nivra\"")
+      resValue("string", "app_name", "Nivra")
+      resValue("string", "launcher_name", "Nivra")
+    }
+
     create("prod") {
       dimension = "environment"
 
