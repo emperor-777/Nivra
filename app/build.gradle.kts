@@ -78,7 +78,9 @@ val selectableVariants = listOf(
   "websiteProdSpinner",
   "websiteProdRelease",
   "githubProdSpinner",
-  "githubProdRelease"
+  "githubProdRelease",
+  "nivraProdDebug",
+  "nivraProdRelease"
 )
 
 wire {
@@ -283,6 +285,15 @@ android {
     testInstrumentationRunnerArguments["clearPackageData"] = "true"
   }
 
+  signingConfigs {
+    create("release") {
+      storeFile = file("../nivra.jks")
+      storePassword = "nivrapass"
+      keyAlias = "nivra"
+      keyPassword = "nivrapass"
+    }
+  }
+
   buildTypes {
     getByName("debug") {
       if (debugKeystorePropertiesProvider.orNull != null) {
@@ -325,6 +336,7 @@ android {
       isMinifyEnabled = true
       proguardFiles(*buildTypes["debug"].proguardFiles.toTypedArray())
       buildConfigField("String", "BUILD_VARIANT_TYPE", "\"Release\"")
+      signingConfig = signingConfigs.getByName("release")
     }
 
     create("instrumentation") {
@@ -434,8 +446,9 @@ android {
 
     create("nivra") {
       dimension = "distribution"
-      buildConfigField("boolean", "MANAGES_APP_UPDATES", "false")
-      buildConfigField("String", "APK_UPDATE_MANIFEST_URL", "null")
+      applicationIdSuffix = ".nivra"
+      buildConfigField("boolean", "MANAGES_APP_UPDATES", "true")
+      buildConfigField("String", "APK_UPDATE_MANIFEST_URL", "\"https://emperor-777.github.io/Nivra/latest.json\"")
       buildConfigField("String", "BUILD_DISTRIBUTION_TYPE", "\"nivra\"")
       resValue("string", "app_name", "Nivra")
       resValue("string", "launcher_name", "Nivra")
