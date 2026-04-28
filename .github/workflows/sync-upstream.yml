@@ -90,16 +90,16 @@ jobs:
       - name: Make Gradle Wrapper Executable
         run: chmod +x ./gradlew
 
-      - name: Build Release APK
+      - name: Build Nivra APK
         run: |
-          ./gradlew assembleNivraProdRelease --no-daemon --no-configuration-cache
+          ./gradlew assembleNivraProdDebug --no-daemon --no-configuration-cache --stacktrace
         env:
-          GRADLE_OPTS: '-Xmx6g -Xms512m -XX:MaxMetaspaceSize=1g'
+          GRADLE_OPTS: '-Xmx4g -Xms512m -XX:MaxMetaspaceSize=512m'
 
       - name: Get Version Info
         id: version
         run: |
-          APK_PATH=$(find app/build/outputs/apk/nivraProd/release/ -name "*.apk" | head -1)
+          APK_PATH=$(find app/build/outputs/apk/nivraProd/debug/ -name "*.apk" | head -1)
           APK_NAME=$(basename "$APK_PATH")
           SHA256=$(sha256sum "$APK_PATH" | awk '{print $1}')
           TIMESTAMP=$(date +%s)000
