@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Branding Overrides -->
+    <string name="app_name">Nivra</string>
+    <string name="launcher_name">Nivra</string>
+    
+    <!-- About Screen -->
+    <string name="about_version_string">Nivra %1$s (Fork of Signal %2$s)</string>
+</resources>
