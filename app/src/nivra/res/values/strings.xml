@@ -6,4 +6,8 @@
     
     <!-- About Screen -->
     <string name="about_version_string">Nivra %1$s (Fork of Signal %2$s)</string>
+    
+    <!-- Registration / Welcome Screen -->
+    <string name="RegistrationActivity_terms_and_privacy">Nivra Messenger\nTerms &amp; Privacy Policy</string>
+    <string name="WelcomeScreen__not_on_signal_yet">Not on Nivra yet?</string>
 </resources>
