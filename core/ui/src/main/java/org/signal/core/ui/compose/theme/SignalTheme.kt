@@ -2,6 +2,8 @@ package org.signal.core.ui.compose.theme
 
 import android.content.res.Configuration
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Shapes
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.Typography
@@ -14,6 +16,7 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.signal.core.ui.CoreUiDependencies
 import org.signal.core.ui.compose.ProvideIncognitoKeyboard
@@ -80,11 +83,18 @@ private val typography = Typography().run {
   )
 }
 
+private val expressiveShapes = Shapes(
+  small = RoundedCornerShape(16.dp),
+  medium = RoundedCornerShape(24.dp),
+  large = RoundedCornerShape(32.dp),
+  extraLarge = RoundedCornerShape(48.dp)
+)
+
 private val lightColorScheme = lightColorScheme(
-  primary = Color(0xFF2C58C3),
-  primaryContainer = Color(0xFFD2DFFB),
-  secondary = Color(0xFF586071),
-  secondaryContainer = Color(0xFFDCE5F9),
+  primary = Color(0xFF6750A4),
+  primaryContainer = Color(0xFFEADDFF),
+  secondary = Color(0xFF625B71),
+  secondaryContainer = Color(0xFFE8DEF8),
   surface = Color(0xFFFBFCFF),
   surfaceContainerLow = Color(0xFFF2F5F9),
   surfaceVariant = Color(0xFFE7EBF3),
@@ -92,9 +102,9 @@ private val lightColorScheme = lightColorScheme(
   error = Color(0xFFBA1B1B),
   errorContainer = Color(0xFFFFDAD4),
   onPrimary = Color(0xFFFFFFFF),
-  onPrimaryContainer = Color(0xFF051845),
+  onPrimaryContainer = Color(0xFF21005D),
   onSecondary = Color(0xFFFFFFFF),
-  onSecondaryContainer = Color(0xFF151D2C),
+  onSecondaryContainer = Color(0xFF1D192B),
   onSurface = Color(0xFF1B1B1D),
   onSurfaceVariant = Color(0xFF545863),
   onBackground = Color(0xFF1B1D1D),
@@ -156,20 +166,20 @@ private val darkExtendedColors = ExtendedColors(
 )
 
 private val darkColorScheme = darkColorScheme(
-  primary = Color(0xFFB6C5FA),
-  primaryContainer = Color(0xFF464B5C),
-  secondary = Color(0xFFC1C6DD),
-  secondaryContainer = Color(0xFF414659),
+  primary = Color(0xFFD0BCFF),
+  primaryContainer = Color(0xFF4F378B),
+  secondary = Color(0xFFCCC2DC),
+  secondaryContainer = Color(0xFF4A4458),
   surface = Color(0xFF1B1C1F),
   surfaceContainerLow = Color(0xFF23242A),
   surfaceVariant = Color(0xFF303133),
   background = Color(0xFF1B1C1F),
   error = Color(0xFFFFB4A9),
   errorContainer = Color(0xFF930006),
-  onPrimary = Color(0xFF1E2438),
-  onPrimaryContainer = Color(0xFFDBE1FC),
-  onSecondary = Color(0xFF2A3042),
-  onSecondaryContainer = Color(0xFFDCE1F9),
+  onPrimary = Color(0xFF381E72),
+  onPrimaryContainer = Color(0xFFEADDFF),
+  onSecondary = Color(0xFF332D41),
+  onSecondaryContainer = Color(0xFFE8DEF8),
   onSurface = Color(0xFFE2E1E5),
   onSurfaceVariant = Color(0xFFBEBFC5),
   onBackground = Color(0xFFE2E1E5),
@@ -206,6 +216,7 @@ fun SignalTheme(
       MaterialTheme(
         colorScheme = if (isDarkMode) darkColorScheme else lightColorScheme,
         typography = typography,
+        shapes = expressiveShapes,
         content = content
       )
     }

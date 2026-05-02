@@ -420,31 +420,7 @@ private fun AppSettingsContent(
 
         // Help and Invite removed
 
-        if (state.showInternalPreferences) {
-          item {
-            Dividers.Default()
-          }
-
-          item {
-            Rows.TextRow(
-              text = "Labs",
-              icon = painterResource(R.drawable.symbol_flash_24),
-              onClick = {
-                callbacks.navigate(AppSettingsRoute.LabsRoute.Labs)
-              }
-            )
-          }
-
-          item {
-            Rows.TextRow(
-              text = stringResource(R.string.preferences__internal_preferences),
-              icon = painterResource(R.drawable.symbol_key_24),
-              onClick = {
-                callbacks.navigate(AppSettingsRoute.InternalRoute.Internal)
-              }
-            )
-          }
-        }
+        // Labs and Internal preferences removed
       }
     }
   }
