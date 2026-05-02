@@ -15,7 +15,7 @@ data class AppSettingsState(
   val clientDeprecated: Boolean,
   val showInternalPreferences: Boolean = RemoteConfig.internalUser,
   val showPayments: Boolean = SignalStore.payments.paymentsAvailability.showPaymentsMenu(),
-  val showAppUpdates: Boolean = Environment.IS_NIGHTLY,
+  val showAppUpdates: Boolean = org.thoughtcrime.securesms.BuildConfig.MANAGES_APP_UPDATES,
   val backupFailureState: BackupFailureState = BackupFailureState.NONE
 ) {
   fun isRegisteredAndUpToDate(): Boolean {
