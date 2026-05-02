@@ -41,6 +41,10 @@ class ContactSearchView : AbstractComposeView {
     fun onRecyclerViewReady(recyclerView: RecyclerView)
   }
 
+  init {
+    setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+  }
+
   private var viewModel: ContactSearchViewModel? by mutableStateOf(null)
   private var currentFragmentManager: FragmentManager? = null
   private var currentDisplayOptions: ContactSearchAdapter.DisplayOptions? = null
@@ -50,12 +54,7 @@ class ContactSearchView : AbstractComposeView {
   private var currentContentBottomPadding: Dp = 0.dp
   private var currentAdapterFactory: ContactSearchAdapter.AdapterFactory = ContactSearchAdapter.DefaultAdapterFactory
   private var currentScrollListeners: List<RecyclerView.OnScrollListener> = emptyList()
-  private var recyclerView: RecyclerView? = null
   private var currentOnRecyclerViewReady: RecyclerViewReadyCallback? = null
-
-  init {
-    setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
-  }
 
   /**
    * Configures and activates the contact search. Must be called exactly once from the host
@@ -107,10 +106,6 @@ class ContactSearchView : AbstractComposeView {
     this.viewModel = viewModel // triggers recomposition
   }
 
-  override fun canScrollVertically(direction: Int): Boolean {
-    return recyclerView?.canScrollVertically(direction) ?: super.canScrollVertically(direction)
-  }
-
   @Composable
   override fun Content() {
     val vm = viewModel ?: return
@@ -128,10 +123,7 @@ class ContactSearchView : AbstractComposeView {
       contentBottomPadding = currentContentBottomPadding,
       adapterFactory = currentAdapterFactory,
       scrollListeners = currentScrollListeners,
-      onRecyclerViewReady = RecyclerViewReadyCallback { recyclerView ->
-        this@ContactSearchView.recyclerView = recyclerView
-        currentOnRecyclerViewReady?.onRecyclerViewReady(recyclerView)
-      }
+      onRecyclerViewReady = currentOnRecyclerViewReady
     )
   }
 }

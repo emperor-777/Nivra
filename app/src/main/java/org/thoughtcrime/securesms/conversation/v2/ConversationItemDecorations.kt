@@ -59,12 +59,6 @@ class ConversationItemDecorations(hasWallpaper: Boolean = false, private val sch
       unreadViewHolder?.updateForWallpaper()
     }
 
-  var isReleaseNotes: Boolean = false
-    set(value) {
-      field = value
-      headerCache.values.forEach { it.updateForWallpaper() }
-    }
-
   var selfRecipientId: RecipientId? = null
 
   override fun getItemOffsets(outRect: Rect, view: View, parent: RecyclerView, state: RecyclerView.State) {
@@ -313,10 +307,7 @@ class ConversationItemDecorations(hasWallpaper: Boolean = false, private val sch
     }
 
     fun updateForWallpaper() {
-      if (isReleaseNotes) {
-        date.setBackgroundResource(R.drawable.release_notes_date_header_background)
-        date.setTextColor(ContextCompat.getColor(itemView.context, CoreUiR.color.signal_colorOnSurfaceVariant))
-      } else if (hasWallpaper) {
+      if (hasWallpaper) {
         date.setBackgroundResource(R.drawable.wallpaper_bubble_background_18)
         date.setTextColor(ContextCompat.getColor(itemView.context, CoreUiR.color.signal_colorNeutralInverse))
       } else {

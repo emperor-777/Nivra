@@ -44,7 +44,7 @@ object BioTextPreference {
 
     override fun getSubhead1Text(context: Context): String? {
       return if (recipient.isReleaseNotes) {
-        null
+        context.getString(R.string.ReleaseNotes__signal_release_notes_and_news)
       } else {
         recipient.combinedAboutAndEmoji
       }

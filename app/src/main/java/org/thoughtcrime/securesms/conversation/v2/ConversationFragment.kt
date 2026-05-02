@@ -18,7 +18,6 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.content.res.Configuration
 import android.graphics.Bitmap
-import android.graphics.Color
 import android.graphics.PorterDuff
 import android.graphics.PorterDuffColorFilter
 import android.graphics.Rect
@@ -43,7 +42,6 @@ import android.view.WindowManager
 import android.view.animation.AnimationUtils
 import android.view.inputmethod.EditorInfo
 import android.widget.ImageButton
-import android.widget.ImageView
 import android.widget.TextView
 import android.widget.TextView.OnEditorActionListener
 import android.widget.Toast
@@ -51,9 +49,7 @@ import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.ActivityResultLauncher
 import androidx.annotation.MainThread
 import androidx.annotation.StringRes
-import androidx.appcompat.content.res.AppCompatResources
 import androidx.appcompat.widget.SearchView
-import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.app.ActivityOptionsCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.pm.ShortcutManagerCompat
@@ -63,7 +59,6 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.doOnPreDraw
 import androidx.core.view.isInvisible
 import androidx.core.view.isVisible
-import androidx.core.view.updatePadding
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentResultListener
@@ -154,7 +149,6 @@ import org.thoughtcrime.securesms.components.InputAwareConstraintLayout
 import org.thoughtcrime.securesms.components.InputPanel
 import org.thoughtcrime.securesms.components.InsetAwareConstraintLayout
 import org.thoughtcrime.securesms.components.ProgressCardDialogFragment
-import org.thoughtcrime.securesms.components.RotatedTiledDrawable
 import org.thoughtcrime.securesms.components.ScrollToPositionDelegate
 import org.thoughtcrime.securesms.components.SendButton
 import org.thoughtcrime.securesms.components.SignalProgressDialog
@@ -190,6 +184,7 @@ import org.thoughtcrime.securesms.conversation.ConversationAdapter
 import org.thoughtcrime.securesms.conversation.ConversationArgs
 import org.thoughtcrime.securesms.conversation.ConversationBottomSheetCallback
 import org.thoughtcrime.securesms.conversation.ConversationData
+import org.thoughtcrime.securesms.conversation.ConversationHeaderView
 import org.thoughtcrime.securesms.conversation.ConversationIntents
 import org.thoughtcrime.securesms.conversation.ConversationIntents.ConversationScreenType
 import org.thoughtcrime.securesms.conversation.ConversationItem
@@ -578,7 +573,7 @@ class ConversationFragment :
   private lateinit var attachmentManager: AttachmentManager
   private lateinit var multiselectItemDecoration: MultiselectItemDecoration
   private lateinit var openableGiftItemDecoration: OpenableGiftItemDecoration
-  private lateinit var conversationHeaderPositionDecoration: ConversationHeaderPositionDecoration
+  private lateinit var threadHeaderMarginDecoration: ThreadHeaderMarginDecoration
   private lateinit var conversationItemDecorations: ConversationItemDecorations
   private lateinit var optionsMenuCallback: ConversationOptionsMenuCallback
 
@@ -606,8 +601,6 @@ class ConversationFragment :
   private var firstPinRender: Boolean = true
   private var skipNextBackPressHandling: Boolean = false
   private var collapsibleEventScrollPosition: CollapsibleEventScrollPosition? = null
-  private var releaseNotesLayoutApplied: Boolean = false
-  private var releaseNotesWallpaperApplied: Boolean = false
 
   private val jumpAndPulseScrollStrategy = object : ScrollToPositionDelegate.ScrollStrategy {
     override fun performScroll(recyclerView: RecyclerView, layoutManager: LinearLayoutManager, position: Int, smooth: Boolean) {
@@ -701,7 +694,6 @@ class ConversationFragment :
       requireActivity(),
       binding.toolbarBackground,
       viewModel::wallpaperSnapshot,
-      { viewModel.recipientSnapshot?.isReleaseNotes == true },
       viewLifecycleOwner,
       incognito = args.isIncognito
     )
@@ -769,10 +761,10 @@ class ConversationFragment :
 
     binding.toolbar.addOnLayoutChangeListener { _, _, _, _, bottom, _, _, _, oldBottom ->
       binding.conversationItemRecycler.padding(top = bottom)
-      if (bottom != oldBottom && ::conversationHeaderPositionDecoration.isInitialized) {
+      if (bottom != oldBottom && ::threadHeaderMarginDecoration.isInitialized) {
         val newMargin = bottom + 16.dp
-        if (conversationHeaderPositionDecoration.toolbarMargin != newMargin) {
-          conversationHeaderPositionDecoration.toolbarMargin = newMargin
+        if (threadHeaderMarginDecoration.toolbarMargin != newMargin) {
+          threadHeaderMarginDecoration.toolbarMargin = newMargin
           binding.conversationItemRecycler.invalidateItemDecorations()
         }
       }
@@ -1570,10 +1562,6 @@ class ConversationFragment :
     presentConversationTitle(inputReadyState.conversationRecipient)
 
     val disabledInputView = binding.conversationDisabledInput
-    val isReleaseNotes = inputReadyState.conversationRecipient.isReleaseNotes
-    if (isReleaseNotes) {
-      applyReleaseNotesLayout()
-    }
 
     var inputDisabled = true
     when {
@@ -1584,40 +1572,20 @@ class ConversationFragment :
       inputReadyState.isRequestingMember == true -> disabledInputView.showAsRequestingMember()
       inputReadyState.isActiveGroup == false -> disabledInputView.showAsNoLongerAMember()
       inputReadyState.isAnnouncementGroup == true && inputReadyState.isAdmin == false -> disabledInputView.showAsAnnouncementGroupAdminsOnly()
-      isReleaseNotes -> Unit
+      inputReadyState.conversationRecipient.isReleaseNotes -> disabledInputView.showAsReleaseNotesChannel(inputReadyState.conversationRecipient)
       inputReadyState.shouldShowInviteToSignal() -> disabledInputView.showAsInviteToSignal(requireContext(), inputReadyState.conversationRecipient, inputReadyState.threadContainsSms)
       else -> inputDisabled = false
     }
 
     inputPanel.setHideForMessageRequestState(inputDisabled)
 
-    if (inputDisabled && !isReleaseNotes) {
+    if (inputDisabled) {
       binding.navBar.setBackgroundColor(disabledInputView.color)
-    } else if (!inputDisabled) {
+    } else {
       disabledInputView.clear()
     }
 
     composeText.setMessageSendType(MessageSendType.SignalMessageSendType)
-  }
-
-  private fun applyReleaseNotesLayout() {
-    if (releaseNotesLayoutApplied) {
-      return
-    }
-    releaseNotesLayoutApplied = true
-
-    binding.conversationReleaseNotesFloatingLabel.visible = true
-    binding.conversationDisabledInput.visible = false
-
-    val navBarInset = ViewCompat.getRootWindowInsets(binding.root)?.getInsets(WindowInsetsCompat.Type.navigationBars())?.bottom ?: 0
-    binding.conversationItemRecycler.updatePadding(bottom = ViewUtil.dpToPx(72) + navBarInset)
-    binding.navBar.setBackgroundColor(Color.TRANSPARENT)
-
-    ConstraintSet().apply {
-      clone(binding.root)
-      connect(binding.conversationItemRecyclerFrame.id, ConstraintSet.BOTTOM, ConstraintSet.PARENT_ID, ConstraintSet.BOTTOM)
-      applyTo(binding.root)
-    }
   }
 
   private fun presentIdentityRecordsState(identityRecordsState: IdentityRecordsState) {
@@ -1745,13 +1713,16 @@ class ConversationFragment :
   }
 
   private fun onRecipientChanged(recipient: Recipient) {
-    presentWallpaper(recipient)
+    presentWallpaper(recipient.wallpaper)
     presentConversationTitle(recipient)
     presentChatColors(recipient.chatColors)
     invalidateOptionsMenu()
     updateMessageRequestAcceptedState(!viewModel.hasMessageRequestState)
 
     recyclerViewColorizer.setChatColors(recipient.chatColors)
+    if (adapter.onHasWallpaperChanged(hasWallpaper = recipient.wallpaper != null)) {
+      conversationItemDecorations.hasWallpaper = recipient.wallpaper != null
+    }
   }
 
   @MainThread
@@ -1871,19 +1842,17 @@ class ConversationFragment :
     }
   }
 
-  private fun presentWallpaper(recipient: Recipient) {
-    val chatWallpaper = recipient.wallpaper
-    if (recipient.isReleaseNotes) {
-      applyReleaseNotesWallpaper()
+  private fun presentWallpaper(chatWallpaper: ChatWallpaper?) {
+    if (chatWallpaper != null) {
+      chatWallpaper.loadInto(binding.conversationWallpaper)
+      ChatWallpaperDimLevelUtil.applyDimLevelForNightMode(binding.conversationWallpaperDim, chatWallpaper)
     } else {
-      applyChatWallpaper(chatWallpaper)
+      binding.conversationWallpaperDim.visible = false
     }
-
-    val wallpaperEnabled = chatWallpaper != null || recipient.isReleaseNotes
 
     val toolbarTint = ContextCompat.getColor(
       requireContext(),
-      if (wallpaperEnabled) {
+      if (chatWallpaper != null) {
         CoreUiR.color.signal_colorNeutralInverse
       } else {
         CoreUiR.color.signal_colorOnSurface
@@ -1894,6 +1863,7 @@ class ConversationFragment :
     binding.toolbar.setActionItemTint(toolbarTint)
     binding.toolbar.navigationIcon?.setTint(toolbarTint)
 
+    val wallpaperEnabled = chatWallpaper != null
     binding.conversationWallpaper.visible = wallpaperEnabled
     binding.scrollToBottom.setWallpaperEnabled(wallpaperEnabled)
     binding.scrollToMention.setWallpaperEnabled(wallpaperEnabled)
@@ -1902,7 +1872,6 @@ class ConversationFragment :
 
     val stateChanged = adapter.onHasWallpaperChanged(wallpaperEnabled)
     conversationItemDecorations.hasWallpaper = wallpaperEnabled
-    conversationItemDecorations.isReleaseNotes = recipient.isReleaseNotes
     if (stateChanged) {
       binding.conversationItemRecycler.invalidateItemDecorations()
     }
@@ -1919,39 +1888,12 @@ class ConversationFragment :
     )
 
     if (!inputPanel.isHidden) {
-      setNavBarBackgroundColor(wallpaperEnabled)
+      setNavBarBackgroundColor(chatWallpaper)
     }
   }
 
-  private fun applyReleaseNotesWallpaper() {
-    if (releaseNotesWallpaperApplied) {
-      return
-    }
-    releaseNotesWallpaperApplied = true
-
-    val tinted = DrawableUtil.tint(
-      AppCompatResources.getDrawable(requireContext(), R.drawable.release_chat_background)!!,
-      ContextCompat.getColor(requireContext(), R.color.release_notes_background_pattern)
-    )
-    val bitmap = DrawableUtil.toBitmap(tinted, tinted.intrinsicWidth, tinted.intrinsicHeight)
-
-    binding.conversationWallpaper.scaleType = ImageView.ScaleType.MATRIX
-    binding.conversationWallpaper.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.release_notes_background))
-    binding.conversationWallpaper.setImageDrawable(RotatedTiledDrawable(bitmap, -45f))
-    binding.conversationWallpaperDim.visible = false
-  }
-
-  private fun applyChatWallpaper(chatWallpaper: ChatWallpaper?) {
-    if (chatWallpaper != null) {
-      chatWallpaper.loadInto(binding.conversationWallpaper)
-      ChatWallpaperDimLevelUtil.applyDimLevelForNightMode(binding.conversationWallpaperDim, chatWallpaper)
-    } else {
-      binding.conversationWallpaperDim.visible = false
-    }
-  }
-
-  private fun setNavBarBackgroundColor(hasWallpaper: Boolean) {
-    val navColor = if (hasWallpaper) {
+  private fun setNavBarBackgroundColor(chatWallpaper: ChatWallpaper?) {
+    val navColor = if (chatWallpaper != null) {
       R.color.conversation_navigation_wallpaper
     } else {
       CoreUiR.color.signal_colorBackground
@@ -2295,11 +2237,12 @@ class ConversationFragment :
       }
     )
 
-    conversationHeaderPositionDecoration = ConversationHeaderPositionDecoration()
+    threadHeaderMarginDecoration = ThreadHeaderMarginDecoration()
 
     val statusBarInset = ViewCompat.getRootWindowInsets(binding.root)?.getInsets(WindowInsetsCompat.Type.systemBars())?.top ?: 0
-    conversationHeaderPositionDecoration.toolbarMargin = statusBarInset + resources.getDimensionPixelSize(R.dimen.signal_m3_toolbar_height) + 16.dp
-    binding.conversationItemRecycler.addItemDecoration(conversationHeaderPositionDecoration)
+    threadHeaderMarginDecoration.toolbarMargin = statusBarInset + resources.getDimensionPixelSize(R.dimen.signal_m3_toolbar_height) + 16.dp
+    binding.conversationItemRecycler.addItemDecoration(threadHeaderMarginDecoration)
+    binding.conversationItemRecycler.addItemDecoration(ConversationHeaderPositionDecoration())
 
     conversationItemDecorations = ConversationItemDecorations(hasWallpaper = args.hasWallpaper)
     binding.conversationItemRecycler.addItemDecoration(conversationItemDecorations, 0)
@@ -3387,8 +3330,7 @@ class ConversationFragment :
 
     private fun presentComposeDivider() {
       val isAtBottom = isScrolledToBottom()
-      val suppress = viewModel.recipientSnapshot?.isReleaseNotes == true
-      if ((isAtBottom && !wasAtBottom) || suppress) {
+      if (isAtBottom && !wasAtBottom) {
         ViewUtil.fadeOut(binding.composeDivider, 50, View.INVISIBLE)
       } else if (wasAtBottom && !isAtBottom) {
         ViewUtil.fadeIn(binding.composeDivider, 500)
@@ -4792,6 +4734,10 @@ class ConversationFragment :
         launchIntent = this@ConversationFragment::startActivity
       )
     }
+
+    override fun onUnmuteReleaseNotesChannel() {
+      viewModel.muteConversation(0L)
+    }
   }
 
   //endregion
@@ -5180,7 +5126,7 @@ class ConversationFragment :
     }
 
     override fun onInputHidden() {
-      setNavBarBackgroundColor(viewModel.wallpaperSnapshot != null || viewModel.recipientSnapshot?.isReleaseNotes == true)
+      setNavBarBackgroundColor(viewModel.wallpaperSnapshot)
       viewModel.setIsMediaKeyboardShowing(false)
     }
 
@@ -5298,6 +5244,17 @@ class ConversationFragment :
         }
 
         datePicker.show(childFragmentManager, "DATE_PICKER")
+      }
+    }
+  }
+
+  private inner class ThreadHeaderMarginDecoration : RecyclerView.ItemDecoration() {
+    var toolbarMargin: Int = 0
+
+    override fun getItemOffsets(outRect: Rect, view: View, parent: RecyclerView, state: RecyclerView.State) {
+      super.getItemOffsets(outRect, view, parent, state)
+      if (view is ConversationHeaderView) {
+        outRect.top = toolbarMargin
       }
     }
   }

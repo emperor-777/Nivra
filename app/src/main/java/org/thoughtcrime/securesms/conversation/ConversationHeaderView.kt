@@ -46,7 +46,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.AbstractComposeView
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.ViewCompositionStrategy
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
@@ -210,12 +209,7 @@ private fun ConversationHeaderContent(
         .padding(top = AvatarOverlapAbove)
         .width(277.dp)
         .then(
-          if (isReleaseNotes) {
-            Modifier
-              .clip(BorderShape)
-              .background(colorResource(R.color.release_notes_header_background))
-              .border(width = 2.dp, color = colorResource(R.color.release_notes_header_border), shape = BorderShape)
-          } else if (hasWallpaper) {
+          if (hasWallpaper) {
             Modifier
               .clip(BorderShape)
               .background(if (isSystemInDarkTheme()) SignalTheme.colors.colorTransparentInverse5 else SignalTheme.colors.colorTransparent5)

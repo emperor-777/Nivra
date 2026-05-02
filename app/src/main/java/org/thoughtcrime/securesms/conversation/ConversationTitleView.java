@@ -119,7 +119,7 @@ public class ConversationTitleView extends ConstraintLayout {
     if (recipient != null && recipient.isBlocked()) {
       startDrawable = ContextUtil.requireDrawable(getContext(), R.drawable.symbol_block_16);
       startDrawable.setBounds(0, 0, ViewUtil.dpToPx(18), ViewUtil.dpToPx(18));
-    } else if (recipient != null && recipient.isMuted() && !recipient.isReleaseNotes()) {
+    } else if (recipient != null && recipient.isMuted()) {
       startDrawable = ContextUtil.requireDrawable(getContext(), R.drawable.ic_bell_disabled_16);
       startDrawable.setBounds(0, 0, ViewUtil.dpToPx(18), ViewUtil.dpToPx(18));
     }

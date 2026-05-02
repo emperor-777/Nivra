@@ -16,7 +16,6 @@ class ConversationToolbarOnScrollHelper(
   activity: FragmentActivity,
   toolbarBackground: View,
   private val wallpaperProvider: () -> ChatWallpaper?,
-  private val releaseNotesProvider: () -> Boolean,
   lifecycleOwner: LifecycleOwner,
   private val incognito: Boolean = false
 ) : Material3OnScrollHelper(
@@ -26,18 +25,10 @@ class ConversationToolbarOnScrollHelper(
   setStatusBarColor = {}
 ) {
   override val activeColorSet: ColorSet
-    get() = when {
-      incognito -> ColorSet(R.color.conversation_toolbar_color_incognito)
-      releaseNotesProvider() -> ColorSet(R.color.release_notes_toolbar_scrolled)
-      else -> ColorSet(getActiveToolbarColor(wallpaperProvider() != null))
-    }
+    get() = if (incognito) ColorSet(R.color.conversation_toolbar_color_incognito) else ColorSet(getActiveToolbarColor(wallpaperProvider() != null))
 
   override val inactiveColorSet: ColorSet
-    get() = when {
-      incognito -> ColorSet(R.color.conversation_toolbar_color_incognito)
-      releaseNotesProvider() -> ColorSet(R.color.release_notes_toolbar_transparent)
-      else -> ColorSet(getInactiveToolbarColor(wallpaperProvider() != null))
-    }
+    get() = if (incognito) ColorSet(R.color.conversation_toolbar_color_incognito) else ColorSet(getInactiveToolbarColor(wallpaperProvider() != null))
 
   @ColorRes
   private fun getActiveToolbarColor(hasWallpaper: Boolean): Int {
