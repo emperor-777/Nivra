@@ -78,6 +78,11 @@ jobs:
           ref: nivra-main
           fetch-depth: 0
 
+      - name: Allocate Swap Space
+        uses: pierotofy/set-swap-space@master
+        with:
+          swap-size-gb: 10
+
       - name: Setup Java 17
         uses: actions/setup-java@v4
         with:
@@ -92,7 +97,7 @@ jobs:
 
       - name: Build Nivra APK
         run: |
-          ./gradlew assembleNivraProdDebug --no-daemon --no-configuration-cache --stacktrace
+          ./gradlew clean assembleNivraProdDebug --no-daemon --no-configuration-cache --no-build-cache --stacktrace
         env:
           GRADLE_OPTS: '-Xmx4g -Xms512m -XX:MaxMetaspaceSize=512m'
 
