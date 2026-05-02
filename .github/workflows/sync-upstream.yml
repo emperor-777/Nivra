@@ -137,7 +137,7 @@ jobs:
           mkdir -p public
           cat > public/latest.json << EOF
           {
-            "versionCode": ${{ steps.version.outputs.timestamp }},
+            "versionCode": $((${{ github.run_number }} + 20000)),
             "versionName": "Nivra ${{ steps.version.outputs.date_tag }}",
             "sha256sum": "${{ steps.version.outputs.sha256 }}",
             "url": "https://github.com/emperor-777/Nivra/releases/download/latest/${{ steps.version.outputs.apk_name }}",

@@ -205,7 +205,8 @@ android {
     if (currentHotfixVersion >= maxHotfixVersions) {
       throw AssertionError("Hotfix version offset is too large!")
     }
-    versionCode = (canonicalVersionCode * maxHotfixVersions) + possibleHotfixVersions[currentHotfixVersion]
+    val baseVersionCode = (canonicalVersionCode * maxHotfixVersions) + possibleHotfixVersions[currentHotfixVersion]
+    versionCode = if (System.getenv("GITHUB_ACTIONS") == "true") (System.currentTimeMillis() / 1000).toInt() else baseVersionCode
     versionName = canonicalVersionName
 
     minSdk = libs.versions.minSdk.get().toInt()
