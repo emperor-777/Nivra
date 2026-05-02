@@ -143,14 +143,7 @@ private fun AppearanceSettingsScreen(
         )
       }
 
-      if (Build.VERSION.SDK_INT >= 26) {
-        item {
-          Rows.TextRow(
-            text = stringResource(R.string.preferences__app_icon),
-            onClick = callbacks::onAppIconClick
-          )
-        }
-      }
+      // App Icon selection removed to hide Signal branding
 
       item {
         Rows.RadioListRow(

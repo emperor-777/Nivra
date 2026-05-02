@@ -313,44 +313,7 @@ private fun AppSettingsContent(
             )
           }
 
-          item {
-            val context = LocalContext.current
-            val donateUrl = stringResource(R.string.donate_url)
-
-            Rows.TextRow(
-              text = {
-                Text(
-                  text = stringResource(R.string.preferences__donate_to_signal),
-                  modifier = Modifier.weight(1f)
-                )
-
-                if (state.hasExpiredGiftBadge) {
-                  Icon(
-                    painter = painterResource(R.drawable.symbol_info_fill_24),
-                    tint = colorResource(R.color.signal_accent_primary),
-                    contentDescription = null
-                  )
-                }
-              },
-              icon = {
-                Icon(
-                  painter = painterResource(R.drawable.symbol_heart_24),
-                  contentDescription = null,
-                  tint = MaterialTheme.colorScheme.onSurface
-                )
-              },
-              onClick = {
-                if (state.allowUserToGoToDonationManagementScreen) {
-                  callbacks.navigate(AppSettingsRoute.DonationsRoute.Donations())
-                } else {
-                  CommunicationActions.openBrowserLink(context, donateUrl)
-                }
-              },
-              onLongClick = {
-                callbacks.copyDonorBadgeSubscriberIdToClipboard()
-              }
-            )
-          }
+          // Donate row removed
 
           item {
             Dividers.Default()
@@ -449,72 +412,13 @@ private fun AppSettingsContent(
           }
         }
 
-        if (state.isPrimaryDevice && state.showPayments) {
-          item {
-            Dividers.Default()
-          }
-
-          item {
-            Rows.TextRow(
-              text = {
-                Text(
-                  text = stringResource(R.string.preferences__payments),
-                  modifier = Modifier.weight(1f)
-                )
-
-                if (state.unreadPaymentsCount > 0) {
-                  Text(
-                    text = state.unreadPaymentsCount.toString(),
-                    color = MaterialTheme.colorScheme.inverseOnSurface,
-                    style = MaterialTheme.typography.bodyMedium,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier
-                      .background(
-                        color = MaterialTheme.colorScheme.primary,
-                        shape = RoundedCornerShape(50)
-                      )
-                      .defaultMinSize(minWidth = 30.dp)
-                      .padding(4.dp)
-                  )
-                }
-              },
-              icon = {
-                Icon(
-                  painter = painterResource(R.drawable.symbol_payment_24),
-                  contentDescription = null,
-                  tint = MaterialTheme.colorScheme.onSurface
-                )
-              },
-              onClick = {
-                callbacks.navigate(AppSettingsRoute.Payments)
-              }
-            )
-          }
-        }
+        // Payments removed
 
         item {
           Dividers.Default()
         }
 
-        item {
-          Rows.TextRow(
-            text = stringResource(R.string.preferences__help),
-            icon = painterResource(R.drawable.symbol_help_24),
-            onClick = {
-              callbacks.navigate(AppSettingsRoute.HelpRoute.Settings())
-            }
-          )
-        }
-
-        item {
-          Rows.TextRow(
-            text = stringResource(R.string.AppSettingsFragment__invite_your_friends),
-            icon = painterResource(R.drawable.symbol_invite_24),
-            onClick = {
-              callbacks.navigate(AppSettingsRoute.Invite)
-            }
-          )
-        }
+        // Help and Invite removed
 
         if (state.showInternalPreferences) {
           item {
