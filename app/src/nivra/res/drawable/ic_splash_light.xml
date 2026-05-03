@@ -1,13 +1,1 @@
-<?xml version="1.0" encoding="utf-8"?>
-<vector xmlns:android="http://schemas.android.com/apk/res/android"
-    android:width="128dp"
-    android:height="128dp"
-    android:viewportWidth="108"
-    android:viewportHeight="108">
-    <path
-        android:fillColor="#FFFFFF"
-        android:pathData="M 54,20 C 35.22,20 20,35.22 20,54 C 20,63.15 23.6,71.45 29.5,77.5 L 29.5,88 L 40,84 C 44.3,86.6 49,88 54,88 C 65.5,88 75.6,82.3 81.6,73.5 C 83.5,82 89,87 89,87 C 89,87 86,76 85.5,69 C 87.1,64.4 88,59.3 88,54 C 88,35.22 72.78,20 54,20 Z" />
-    <path android:fillColor="#F4883A" android:pathData="M 38,54 m -5,0 a 5,5 0 1,1 10,0 a 5,5 0 1,1 -10,0" />
-    <path android:fillColor="#2D3E50" android:pathData="M 54,54 m -5,0 a 5,5 0 1,1 10,0 a 5,5 0 1,1 -10,0" />
-    <path android:fillColor="#38A966" android:pathData="M 70,54 m -5,0 a 5,5 0 1,1 10,0 a 5,5 0 1,1 -10,0" />
-</vector>
+<?xml version="1.0" encoding="utf-8"?><layer-list xmlns:android="http://schemas.android.com/apk/res/android"><item android:gravity="center"><bitmap android:src="@drawable/nivra_logo_new" android:gravity="center" /></item></layer-list>

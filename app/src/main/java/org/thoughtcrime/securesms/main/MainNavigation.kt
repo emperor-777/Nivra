@@ -311,11 +311,12 @@ private fun NavigationDestinationIcon(
   destination: MainNavigationListLocation,
   selected: Boolean
 ) {
+  val iconColor = if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
   val dynamicProperties = rememberLottieDynamicProperties(
     rememberLottieDynamicProperty(
       property = LottieProperty.COLOR_FILTER,
       value = BlendModeColorFilterCompat.createBlendModeColorFilterCompat(
-        MaterialTheme.colorScheme.onSurface.hashCode(),
+        androidx.compose.ui.graphics.toArgb(iconColor),
         BlendModeCompat.SRC_ATOP
       ),
       keyPath = arrayOf("**")
@@ -324,12 +325,16 @@ private fun NavigationDestinationIcon(
 
   val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(destination.icon))
   val progress by animateFloatAsState(targetValue = if (selected) 1f else 0f, animationSpec = tween(durationMillis = composition?.duration?.toInt() ?: 0))
+  val scale by androidx.compose.animation.core.animateFloatAsState(
+    targetValue = if (selected) 1.2f else 1f,
+    animationSpec = androidx.compose.animation.core.spring(stiffness = androidx.compose.animation.core.Spring.StiffnessMediumLow)
+  )
 
   LottieAnimation(
     composition = composition,
     progress = { if (selected) progress else 0f },
     dynamicProperties = dynamicProperties,
-    modifier = Modifier.size(LOTTIE_SIZE)
+    modifier = Modifier.size(LOTTIE_SIZE).androidx.compose.ui.draw.scale(scale)
   )
 }
 

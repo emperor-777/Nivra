@@ -147,15 +147,7 @@ class EditProfileFragment : LoggingFragment() {
       }
     }
 
-    binding.manageProfileBadgesContainer.setOnClickListener { v: View ->
-      if (!viewModel.isRegisteredAndUpToDate) {
-        onClickWhenUnregisteredOrDeprecated()
-      } else if (Recipient.self().badges.isEmpty()) {
-        show(parentFragmentManager)
-      } else {
-        findNavController(v).safeNavigate(EditProfileFragmentDirections.actionManageProfileFragmentToBadgeManageFragment())
-      }
-    }
+    binding.manageProfileBadgesContainer.visibility = View.GONE
 
     binding.manageProfileAvatar.setOnClickListener {
       if (!viewModel.isRegisteredAndUpToDate) {
