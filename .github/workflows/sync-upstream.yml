@@ -100,9 +100,14 @@ jobs:
 
       - name: Build Nivra APK
         run: |
-          ./gradlew clean assembleNivraProdDebug --no-daemon --no-configuration-cache --no-build-cache --stacktrace
+          ./gradlew clean assembleNivraProdDebug \
+            --no-daemon \
+            --stacktrace \
+            --info \
+            -Dorg.gradle.jvmargs="-Xmx6g -Xms1g -XX:MaxMetaspaceSize=1g -XX:+HeapDumpOnOutOfMemoryError" \
+            -Dkotlin.daemon.jvm.options="-Xmx3g -Xms512m"
         env:
-          GRADLE_OPTS: '-Xmx4g -Xms512m -XX:MaxMetaspaceSize=512m'
+          GRADLE_OPTS: '-Xmx6g -Xms1g -XX:MaxMetaspaceSize=1g'
 
       - name: Get Version Info
         id: version
